@@ -1,0 +1,11 @@
+CFLAGS = -Wall
+
+client: client.o aws.o
+	$(CC) -o $@ $^
+
+client.o : client.c
+aws.o : aws.c
+
+
+clean : 
+	rm -rf *.o client

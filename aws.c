@@ -44,9 +44,9 @@ int main(int argc, char *argv[]){
 
 	
 	// receive from client
-	recv(new_fd, func_name, 1500, 0);
-	//int i = 0;
+	recv(new_fd, func_name, 3, 0);
 	recv(new_fd, buff_data, sizeof buff_data, 0);
+	printf("%s, size: %d\n", func_name,strlen(func_name));
 
 	int count = strlen(buff_data);
 	printf("The AWS has received %d numbers from the client using TCP over port 25955. \n", count);
@@ -65,19 +65,31 @@ int main(int argc, char *argv[]){
 	for (; j < count_third; j++){
 		buffA[j] = buff_data[j];
 	}
-	buffA[j] = '\0';
+	int k = 0;
+	for (; k < 3; k++){
+		buffA[j+k] = func_name[k];
+	} 
+	buffA[j+k] = '\0';
 
 	char buffB[1500]; 
 	for (; j < count_2; j++){
 		buffB[j-count_third] = buff_data[j];
 	}
-	buffB[j-count_third] = '\0';
+	k = 0;
+	for (; k < 3; k++){
+		buffB[j-count_third+k] = func_name[k];
+	} 
+	buffB[j-count_third+k] = '\0';
 
 	char buffC[1500]; 
 	for (; j < count_3; j++){
 		buffC[j-count_2] = buff_data[j];
 	}
-	buffC[j-count_2] = '\0';
+	k = 0;
+	for (; k < 3; k++){
+		buffC[j-count_2+k] = func_name[k];
+	} 
+	buffC[j-count_2+k] = '\0';
 	printf("size of buff_data: %d, buffA: %d, buffB: %d, buffC: %d\n", strlen(buff_data), strlen(buffA), strlen(buffB), strlen(buffC));
 
 
@@ -142,24 +154,24 @@ int main(int argc, char *argv[]){
  		perror("sendto");
  		exit(1);
  	}
- 	count  = sizeof(buffA);
+ 	count  = (strlen(buffA) - 3) / sizeof(int);
  	printf("The AWS sent %d numbers to Backend-Server A\n", count);
- 	// send to serverB
+
+	// send to serverB
  	if ((numbytes = sendto(sock_udp, (char*)buffB, strlen((char*)buffB), 0,(struct sockaddr*)&serverB, sizeof(serverB)) == -1)){
  		perror("sendto");
  		exit(1);
  	}
- 	count  = sizeof(buffB);
+ 	count  = (strlen(buffB) - 3) / sizeof(int);
  	printf("The AWS sent %d numbers to Backend-Server B\n", count);
+
  	// send to serverC
  	if ((numbytes = sendto(sock_udp, (char*)buffC, strlen((char*)buffC), 0,(struct sockaddr*)&serverC, sizeof(serverC)) == -1)){
  		perror("sendto");
  		exit(1);
  	}
- 	count  = sizeof(buffC);
+ 	count  = (strlen(buffC) - 3) / sizeof(int);
  	printf("The AWS sent %d numbers to Backend-Server C\n", count);
-
-
 }	
 
 

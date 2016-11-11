@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 	connect(sockfd, res->ai_addr, res->ai_addrlen);
 
 	// send function name to AWS
-	char msg[1500];
+	char msg[100];
 	strcpy(msg, argv[1]);
 	int len = strlen(msg);
 	if (send(sockfd, msg, len, 0) == -1){

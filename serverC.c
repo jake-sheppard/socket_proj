@@ -16,6 +16,7 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in server;
 	struct sockaddr_in origin;
 	char buffer[1024];
+	char func_name[100];
 
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd == -1){
@@ -38,6 +39,30 @@ int main(int argc, char *argv[]){
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
-		printf("size of received for C: %d\n", strlen(buffer));
+		int num = strlen(buffer);
+		printf("size of received for C: %d\n", num);
+		func_name[0] = buffer[num - 3];
+		func_name[1] = buffer[num - 2];
+		func_name[2] = buffer[num - 1];
+
+		int min = strcmp(func_name,"min");
+		int max = strcmp(func_name,"max");
+		int sum = strcmp(func_name,"sum");
+		int sos = strcmp(func_name,"sos");
+		
+		if (min == 0){
+			printf("min\n");
+		}
+		else if (max == 0){
+			printf("max\n");
+		}
+		else if (sum == 0){
+			printf("sum\n");
+		}
+		else if (sos == 0){
+			printf("sos\n");
+		}
+		
+
 	}
 }

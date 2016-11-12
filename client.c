@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
 	
 
 	FILE *fp;
-	long size;
+	int file_size;
 
 
 	fp = fopen ( "nums.csv" , "rb" );
@@ -65,28 +65,41 @@ int main(int argc, char *argv[]){
 	}
 	
 	fseek( fp , 0L , SEEK_END);
-	size = ftell( fp );
+	file_size = ftell( fp );
 	rewind( fp );
 
+	char* line = NULL;
+	size_t length = 0;
+	size_t read;
 
-	int buffer[size];
-	
-	if( 1!=fread( buffer , size, 1 , fp) )
-  	fclose(fp),free(buffer),fputs("entire read fails",stderr),exit(1);
+	int buffer[1600];
+	int i = 0;
 
-  	int last = size/sizeof(int);
-  	buffer[last] = '\0';
-	
-	/* do your work here, buffer is a string contains the whole text */
-  	if (send(sockfd, (void*)buffer, size, 0) == -1){
+	while ((read = getline(&line, &length, fp)) != -1) {
+        buffer[i] = atoi(line);
+        i++;
+    }
+
+    /*for (int j = 0; j < 300; j++){
+    	printf("%d\n",buffer[j] );
+    }
+	*/
+
+
+    // sending how many ints
+    if (send(sockfd, (void*)&i, sizeof(int), 0) == -1){
 		perror("send");
 		exit(1);
 	} 
-	printf("The client has sent %d numbers to AWS.\n", size/sizeof(int));
+
+  	if (send(sockfd, (void*)buffer, i*sizeof(int), 0) == -1){
+		perror("send");
+		exit(1);
+	} 
+	printf("The client has sent %d numbers to AWS.\n", i);
 
 
 	fclose(fp);
-	//free(buffer);
 
 
 }

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
 	struct sockaddr_in tcp_addr;
 	struct sockaddr_storage inc_addr;
 	char func_name[100];
-	char buff_data[1500];
+	int buff_data[1500];
 	
 
 
@@ -43,55 +43,48 @@ int main(int argc, char *argv[]){
 	new_fd = accept(sock_tcp, (struct sockaddr *)&inc_addr, &addr_size);
 
 	
-	// receive from client
-	recv(new_fd, func_name, 3, 0);
-	recv(new_fd, buff_data, sizeof buff_data, 0);
-	printf("%s, size: %d\n", func_name,strlen(func_name));
+	
 
-	int count = strlen(buff_data);
+
+	// receive from client
+
+	recv(new_fd, func_name, 3, 0);
+	int nums[1];
+	recv(new_fd, nums, sizeof(int), 0);
+	int count = nums[0];
+	recv(new_fd, buff_data, count*sizeof(int), 0);
+
+	//int count = sizeof(buff_data);
+
+	/*for (int j = 0; j < 300; j++){
+    	printf("%d\n",buff_data[j]);
+    }
+	*/
 	printf("The AWS has received %d numbers from the client using TCP over port 25955. \n", count);
 
-	
 
 	// divide data buffer into three arrays
 	int count_third = count/3;
 	int count_2 = 2*count_third;
 	int count_3 = 3*count_third;
 
-	printf("count_third=%d , count_2=%d , count_3=%d \n",count_third, count_2, count_3 );
+	//printf("count_third=%d , count_2=%d , count_3=%d \n",count_third, count_2, count_3 );
 
-	char buffA[1500]; 
+	int buffA[(count_third)*sizeof(int)]; 
 	int j = 0;
 	for (; j < count_third; j++){
 		buffA[j] = buff_data[j];
 	}
-	int k = 0;
-	for (; k < 3; k++){
-		buffA[j+k] = func_name[k];
-	} 
-	buffA[j+k] = '\0';
-
-	char buffB[1500]; 
+	
+	int buffB[(count_third)*sizeof(int)]; 
 	for (; j < count_2; j++){
 		buffB[j-count_third] = buff_data[j];
 	}
-	k = 0;
-	for (; k < 3; k++){
-		buffB[j-count_third+k] = func_name[k];
-	} 
-	buffB[j-count_third+k] = '\0';
 
-	char buffC[1500]; 
+	int buffC[(count_third)*sizeof(int)]; 
 	for (; j < count_3; j++){
 		buffC[j-count_2] = buff_data[j];
 	}
-	k = 0;
-	for (; k < 3; k++){
-		buffC[j-count_2+k] = func_name[k];
-	} 
-	buffC[j-count_2+k] = '\0';
-	printf("size of buff_data: %d, buffA: %d, buffB: %d, buffC: %d\n", strlen(buff_data), strlen(buffA), strlen(buffB), strlen(buffC));
-
 
 	// SOCKET FOR UDP
 	int sock_udp, rv, numbytes, sock_A, sock_B, sock_C;
@@ -149,29 +142,72 @@ int main(int argc, char *argv[]){
 
 
 
-	// send to serverA
- 	if ((numbytes = sendto(sock_udp, (char*)buffA, strlen((char*)buffA), 0,(struct sockaddr*)&serverA, sizeof(serverA)) == -1)){
- 		perror("sendto");
- 		exit(1);
- 	}
- 	count  = (strlen(buffA) - 3) / sizeof(int);
- 	printf("The AWS sent %d numbers to Backend-Server A\n", count);
 
-	// send to serverB
- 	if ((numbytes = sendto(sock_udp, (char*)buffB, strlen((char*)buffB), 0,(struct sockaddr*)&serverB, sizeof(serverB)) == -1)){
- 		perror("sendto");
- 		exit(1);
- 	}
- 	count  = (strlen(buffB) - 3) / sizeof(int);
- 	printf("The AWS sent %d numbers to Backend-Server B\n", count);
+	// SEND TO SERVER A
 
- 	// send to serverC
- 	if ((numbytes = sendto(sock_udp, (char*)buffC, strlen((char*)buffC), 0,(struct sockaddr*)&serverC, sizeof(serverC)) == -1)){
+	// sending function name
+	if ((numbytes = sendto(sock_udp, func_name, 3*sizeof(char), 0,(struct sockaddr*)&serverA, sizeof(serverA)) == -1)){
  		perror("sendto");
  		exit(1);
  	}
- 	count  = (strlen(buffC) - 3) / sizeof(int);
- 	printf("The AWS sent %d numbers to Backend-Server C\n", count);
+
+ 	// sending amount of numbers
+ 	if ((numbytes = sendto(sock_udp, (void*)&count_third, sizeof(int), 0,(struct sockaddr*)&serverA, sizeof(serverA)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+
+ 	// sending data
+ 	if ((numbytes = sendto(sock_udp, (void*)buffA, sizeof buffA, 0,(struct sockaddr*)&serverA, sizeof(serverA)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+ 	printf("The AWS sent %d numbers to Backend-Server A\n", count_third);
+
+
+
+
+ 	// SEND TO SERVER B
+	
+	// sending function name
+ 	if ((numbytes = sendto(sock_udp, func_name, 3*sizeof(char), 0,(struct sockaddr*)&serverB, sizeof(serverB)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+
+ 	// sending amount of numbers
+ 	if ((numbytes = sendto(sock_udp, (void*)&count_third, sizeof(int), 0,(struct sockaddr*)&serverB, sizeof(serverB)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+
+ 	// sending data
+ 	if ((numbytes = sendto(sock_udp, (void*)buffB, sizeof buffB, 0,(struct sockaddr*)&serverB, sizeof(serverB)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+ 	printf("The AWS sent %d numbers to Backend-Server B\n", count_third);
+
+ 	// SEND TO SERVER C
+
+ 	// sending function name
+ 	if ((numbytes = sendto(sock_udp, func_name, 3*sizeof(char), 0,(struct sockaddr*)&serverC, sizeof(serverC)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+
+ 	// sending amount of numbers
+ 	if ((numbytes = sendto(sock_udp, (void*)&count_third, sizeof(int), 0,(struct sockaddr*)&serverC, sizeof(serverC)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+
+ 	// sending data
+ 	if ((numbytes = sendto(sock_udp, (void*)buffC, sizeof buffC, 0,(struct sockaddr*)&serverC, sizeof(serverC)) == -1)){
+ 		perror("sendto");
+ 		exit(1);
+ 	}
+ 	printf("The AWS sent %d numbers to Backend-Server C\n", count_third);
 }	
 
 

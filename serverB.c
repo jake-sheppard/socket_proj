@@ -35,24 +35,36 @@ int main(int argc, char *argv[]){
 	printf("The Server B is up and running using UDP on port 22955.\n");
 
 	while(1){
-		numbytes = recvfrom(sockfd, buffer, 1024, 0, &origin, &origin_length);
+		// receiving function name
+		numbytes = recvfrom(sockfd, func_name, 3*sizeof(char), 0, &origin, &origin_length);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
-		int num = strlen(buffer);
-		printf("size of received for B: %d\n", num);
-		func_name[0] = buffer[num - 3];
-		func_name[1] = buffer[num - 2];
-		func_name[2] = buffer[num - 1];
+	
+		// receiving number of integers
+		int nums[1];
+		numbytes = recvfrom(sockfd, nums, sizeof(int), 0, &origin, &origin_length);
+		if (numbytes == -1){
+			perror("recvfrom");
+		}
 
+		// receiving integers
+		int cnt = nums[0];
+		numbytes = recvfrom(sockfd, buffer, cnt * sizeof(int), 0, &origin, &origin_length);
+		if (numbytes == -1){
+			perror("recvfrom");
+		}
+		
+		func_name[3] = '\0';
 		int min = strcmp(func_name,"min");
 		int max = strcmp(func_name,"max");
 		int sum = strcmp(func_name,"sum");
 		int sos = strcmp(func_name,"sos");
 		
+		int* int_array = (int*) buffer;
 		if (min == 0){
 			printf("min\n");
-		}
+					}
 		else if (max == 0){
 			printf("max\n");
 		}

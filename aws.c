@@ -86,6 +86,7 @@ int main(int argc, char *argv[]){
 		buffC[j-count_2] = buff_data[j];
 	}
 
+
 	// SOCKET FOR UDP
 	int sock_udp, rv, numbytes, sock_A, sock_B, sock_C;
 	struct sockaddr_in udp_addr, serverA, serverB, serverC;

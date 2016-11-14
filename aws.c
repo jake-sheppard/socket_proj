@@ -54,12 +54,7 @@ int main(int argc, char *argv[]){
 	int count = nums[0];
 	recv(new_fd, buff_data, count*sizeof(int), 0);
 
-	//int count = sizeof(buff_data);
-
-	/*for (int j = 0; j < 300; j++){
-    	printf("%d\n",buff_data[j]);
-    }
-	*/
+	
 	printf("The AWS has received %d numbers from the client using TCP over port 25955. \n", count);
 
 
@@ -68,7 +63,6 @@ int main(int argc, char *argv[]){
 	int count_2 = 2*count_third;
 	int count_3 = 3*count_third;
 
-	//printf("count_third=%d , count_2=%d , count_3=%d \n",count_third, count_2, count_3 );
 
 	int buffA[(count_third)*sizeof(int)]; 
 	int j = 0;
@@ -85,6 +79,7 @@ int main(int argc, char *argv[]){
 	for (; j < count_3; j++){
 		buffC[j-count_2] = buff_data[j];
 	}
+
 
 
 	// SOCKET FOR UDP
@@ -209,6 +204,79 @@ int main(int argc, char *argv[]){
  		exit(1);
  	}
  	printf("The AWS sent %d numbers to Backend-Server C\n", count_third);
+
+ 	int origin_length;
+ 	struct sockaddr_in origin;
+ 	int resultA[1];
+ 	int resultB[1];
+ 	int resultC[1];
+
+
+ 	while(1){
+ 		// receive from A
+ 		numbytes = recvfrom(sock_udp, (void*)&resultA, sizeof(int), 0, &origin, &origin_length);
+		if (numbytes == -1){
+			perror("recvfrom");
+		}
+		printf("Received from server A: %d\n", resultA[0] );
+
+		// receive from B
+		numbytes = recvfrom(sock_udp, (void*)&resultB, sizeof(int), 0, &origin, &origin_length);
+		if (numbytes == -1){
+			perror("recvfrom");
+		}
+		printf("Received from server B: %d\n", resultB[0] );
+
+		// receive from C
+		numbytes = recvfrom(sock_udp, (void*)&resultC, sizeof(int), 0, &origin, &origin_length);
+		if (numbytes == -1){
+			perror("recvfrom");
+		}
+		printf("Received from server C: %d\n", resultC[0] );
+
+
+
+
+		func_name[3] = '\0';
+		int min = strcmp(func_name,"min");
+		int max = strcmp(func_name,"max");
+		int sum = strcmp(func_name,"sum");
+		int sos = strcmp(func_name,"sos");
+		
+		int result;
+		if (min == 0){
+			result = resultA[0];
+			if (resultB[0] < result){
+				result = resultB[0];
+			}
+			if (resultC[0] < result){
+				result = resultC[0];
+			}
+			printf("Min = %d\n", result);
+		}
+		else if (max == 0){
+			result = resultA[0];
+			if (resultB[0] > result){
+				result = resultB[0];
+			}
+			if (resultC[0] > result){
+				result = resultC[0];
+			}
+			printf("Max = %d\n", result);
+		}
+		else if (sum == 0){
+			result = resultA[0] + resultB[0] + resultC[0];
+			printf("Sum = %d\n", result);
+		}
+		else if (sos == 0){
+			result = resultA[0] + resultB[0] + resultC[0];
+			printf("Sos = %d\n", result);
+		}
+ 	}
+
+
+
+ 	
 }	
 
 

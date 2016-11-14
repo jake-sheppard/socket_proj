@@ -12,10 +12,10 @@
 
 int main(int argc, char *argv[]){
 
-	int sockfd, origin_length, numbytes;
+	int sockfd, origin_length, numbytes, len1, len2;
 	struct sockaddr_in server;
-	struct sockaddr_in origin;
-	char buffer[1024];
+	struct sockaddr_in origin, temp1, temp2, aws;
+	int buffer[1600];
 	char func_name[100];
 
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -35,6 +35,7 @@ int main(int argc, char *argv[]){
 	printf("The Server B is up and running using UDP on port 22955.\n");
 
 	while(1){
+		memset(&origin, 0, sizeof(origin));
 		// receiving function name
 		numbytes = recvfrom(sockfd, func_name, 3*sizeof(char), 0, &origin, &origin_length);
 		if (numbytes == -1){
@@ -42,15 +43,17 @@ int main(int argc, char *argv[]){
 		}
 	
 		// receiving number of integers
+		memset(&temp1, 0, sizeof(temp1));
 		int nums[1];
-		numbytes = recvfrom(sockfd, nums, sizeof(int), 0, &origin, &origin_length);
+		numbytes = recvfrom(sockfd, nums, sizeof(int), 0, &temp1, &len1);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
 
 		// receiving integers
+		memset(&temp2, 0, sizeof(temp2));
 		int cnt = nums[0];
-		numbytes = recvfrom(sockfd, buffer, cnt * sizeof(int), 0, &origin, &origin_length);
+		numbytes = recvfrom(sockfd, buffer, cnt * sizeof(int), 0, &temp2, &len2);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
@@ -94,6 +97,17 @@ int main(int argc, char *argv[]){
 			}
 			printf("sos = %d\n", result);
 		}
+
+		bzero(&aws, sizeof(aws));
+		aws.sin_family = AF_INET;
+		aws.sin_port = htons(24955);
+		aws.sin_addr.s_addr = htonl(INADDR_ANY);
+
+		printf("sockfd = %d, result = %d, origin = %p, origin_length = %d\n", sockfd, result, &aws, sizeof(aws));
+ 		if ((numbytes = sendto(sockfd, (void*)&result, sizeof(int), 0,(struct sockaddr*)&aws, sizeof(aws)) == -1)){
+ 			perror("sendto");
+ 			exit(1);
+ 		}
 
 
 	}

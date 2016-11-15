@@ -1,11 +1,26 @@
-CFLAGS = -Wall
+all:
+	g++ -o serverA serverA.cpp -lsocket -lnsl -lresolv
+	g++ -o serverB serverB.cpp -lsocket -lnsl -lresolv
+	g++ -o serverC serverC.cpp -lsocket -lnsl -lresolv
+	g++ -o aws aws.cpp -lsocket -lnsl -lresolv
+	g++ -o client client.cpp -lsocket -lnsl -lresolv 
 
-client: client.o aws.o
-	$(CC) -o $@ $^
 
-client.o : client.c
-aws.o : aws.c
+serverA: 
+	./serverA
 
+serverB: 
+	./serverB
 
-clean : 
-	rm -rf *.o client
+serverC: 
+	./serverC
+
+aws: 
+	./aws
+
+clean:
+	rm -rf serverA
+	rm -rf serverB
+	rm -rf serverC
+	rm -rf aws
+	rm -rf client

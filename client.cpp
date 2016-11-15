@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +10,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <fstream>
+#include <string>
 
 
 int main(int argc, char *argv[]){
@@ -54,7 +57,7 @@ int main(int argc, char *argv[]){
 
 	
 
-	FILE *fp;
+	/*FILE *fp;
 	int file_size;
 
 
@@ -71,19 +74,19 @@ int main(int argc, char *argv[]){
 	char* line = NULL;
 	size_t length = 0;
 	size_t read;
+	*/
+
+	std::ifstream infile("nums.csv");
+	std::string line;
 
 	int buffer[1600];
 	int i = 0;
 
-	while ((read = getline(&line, &length, fp)) != -1) {
-        buffer[i] = atoi(line);
+	while (std::getline(infile,line)) {
+        buffer[i] = std::atoi(line.c_str());
         i++;
     }
 
-    /*for (int j = 0; j < 300; j++){
-    	printf("%d\n",buffer[j] );
-    }
-	*/
 
 
     // sending how many ints
@@ -98,8 +101,11 @@ int main(int argc, char *argv[]){
 	} 
 	printf("The client has sent %d numbers to AWS.\n", i);
 
+	//fclose(fp);
 
-	fclose(fp);
-
+	int result[1];
+	recv(sockfd, (void*)&result, sizeof(int), 0);
+	printf("The client has received reduction %s: %d\n",msg, result[0]);
+	close(sockfd);
 
 }

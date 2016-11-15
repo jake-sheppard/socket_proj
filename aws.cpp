@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <strings.h>
 
 int main(int argc, char *argv[]){
 	printf("The AWS is up and running.\n");
@@ -40,7 +41,7 @@ int main(int argc, char *argv[]){
 	listen(sock_tcp, 10);
 	// accept an incoming connection
 	addr_size = sizeof inc_addr;
-	new_fd = accept(sock_tcp, (struct sockaddr *)&inc_addr, &addr_size);
+	new_fd = accept(sock_tcp, (struct sockaddr *)&inc_addr, (socklen_t*)&addr_size);
 
 	
 	
@@ -112,7 +113,7 @@ int main(int argc, char *argv[]){
 	bzero(&serverA, sizeof(serverA));
 	serverA.sin_family = AF_INET;
 	serverA.sin_port = htons(21955);
-	int temp = inet_aton("127.0.0.1", &serverA.sin_addr.s_addr);
+	int temp = inet_aton("127.0.0.1", (in_addr*)&serverA.sin_addr.s_addr);
 
 	// socket for server B
 	sock_B = socket(AF_INET, SOCK_DGRAM, 0);
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]){
 	bzero(&serverB, sizeof(serverB));
 	serverB.sin_family = AF_INET;
 	serverB.sin_port = htons(22955);
-	temp = inet_aton("127.0.0.1", &serverB.sin_addr.s_addr);
+	temp = inet_aton("127.0.0.1", (in_addr*)&serverB.sin_addr.s_addr);
 
 	// socket for server C
 	sock_C = socket(AF_INET, SOCK_DGRAM, 0);
@@ -134,7 +135,7 @@ int main(int argc, char *argv[]){
 	bzero(&serverC, sizeof(serverC));
 	serverC.sin_family = AF_INET;
 	serverC.sin_port = htons(23955);
-	temp = inet_aton("127.0.0.1", &serverC.sin_addr.s_addr);
+	temp = inet_aton("127.0.0.1", (in_addr*)&serverC.sin_addr.s_addr);
 
 
 
@@ -214,25 +215,25 @@ int main(int argc, char *argv[]){
 
  	while(1){
  		// receive from A
- 		numbytes = recvfrom(sock_udp, (void*)&resultA, sizeof(int), 0, &origin, &origin_length);
+ 		numbytes = recvfrom(sock_udp, (void*)&resultA, sizeof(int), 0, (sockaddr*)&origin, (socklen_t*)&origin_length);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
-		printf("Received from server A: %d\n", resultA[0] );
+		printf("The AWS received reduction result of %s from Backend-Server A using UDP over port 24955 and it is %d\n", func_name, resultA[0]);
 
 		// receive from B
-		numbytes = recvfrom(sock_udp, (void*)&resultB, sizeof(int), 0, &origin, &origin_length);
+		numbytes = recvfrom(sock_udp, (void*)&resultB, sizeof(int), 0, (sockaddr*)&origin, (socklen_t*)&origin_length);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
-		printf("Received from server B: %d\n", resultB[0] );
+		printf("The AWS received reduction result of %s from Backend-Server B using UDP over port 24955 and it is %d\n", func_name, resultB[0]);
 
 		// receive from C
-		numbytes = recvfrom(sock_udp, (void*)&resultC, sizeof(int), 0, &origin, &origin_length);
+		numbytes = recvfrom(sock_udp, (void*)&resultC, sizeof(int), 0, (sockaddr*)&origin, (socklen_t*)&origin_length);
 		if (numbytes == -1){
 			perror("recvfrom");
 		}
-		printf("Received from server C: %d\n", resultC[0] );
+		printf("The AWS received reduction result of %s from Backend-Server C using UDP over port 24955 and it is %d\n", func_name, resultC[0]);
 
 
 
@@ -252,7 +253,6 @@ int main(int argc, char *argv[]){
 			if (resultC[0] < result){
 				result = resultC[0];
 			}
-			printf("Min = %d\n", result);
 		}
 		else if (max == 0){
 			result = resultA[0];
@@ -262,16 +262,20 @@ int main(int argc, char *argv[]){
 			if (resultC[0] > result){
 				result = resultC[0];
 			}
-			printf("Max = %d\n", result);
 		}
 		else if (sum == 0){
 			result = resultA[0] + resultB[0] + resultC[0];
-			printf("Sum = %d\n", result);
 		}
 		else if (sos == 0){
 			result = resultA[0] + resultB[0] + resultC[0];
-			printf("Sos = %d\n", result);
 		}
+		printf("The AWS has successfully finished the reduction %s: %d\n", func_name, result);
+		// send result to client
+		if (send(new_fd, (void*)&result, sizeof(int), 0) == -1){
+		perror("send");
+		exit(1);
+		} 
+		printf("The AWS has successfully finished sending the reduction value to client.\n");
  	}
 
 

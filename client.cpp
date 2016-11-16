@@ -53,29 +53,6 @@ int main(int argc, char *argv[]){
 	
 
 
-	// need to read in nums file and store, delimiter is a comma
-
-	
-
-	/*FILE *fp;
-	int file_size;
-
-
-	fp = fopen ( "nums.csv" , "rb" );
-	if( !fp ){
-		perror("nums.csv");
-		exit(1);
-	}
-	
-	fseek( fp , 0L , SEEK_END);
-	file_size = ftell( fp );
-	rewind( fp );
-
-	char* line = NULL;
-	size_t length = 0;
-	size_t read;
-	*/
-
 	std::ifstream infile("nums.csv");
 	std::string line;
 
@@ -106,6 +83,7 @@ int main(int argc, char *argv[]){
 	int result[1];
 	recv(sockfd, (void*)&result, sizeof(int), 0);
 	printf("The client has received reduction %s: %d\n",msg, result[0]);
+	printf("\n");
 	close(sockfd);
 
 }

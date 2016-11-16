@@ -3,7 +3,7 @@ all:
 	g++ -o serverB serverB.cpp -lsocket -lnsl -lresolv
 	g++ -o serverC serverC.cpp -lsocket -lnsl -lresolv
 	g++ -o aws aws.cpp -lsocket -lnsl -lresolv
-	g++ -o client client.cpp -lsocket -lnsl -lresolv 
+	g++ -o client client.cpp -lsocket -lnsl -lresolv
 
 
 serverA: 

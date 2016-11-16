@@ -1,0 +1,84 @@
+EE 450 Socket Programming Project, Fall 2016
+
+Name: Jake Sheppard
+Student ID: 2471844955
+
+
+Purpose:
+	The purpose of the assignment was to demonstrate socket programming techniques. For
+	the project I created a program consisting of 5 files, which modeled a client and servers.
+	There are 4 server programs all together, the first being the AWS server which communicates
+	directly with the client, and then there are 3 back-end servers, Server A, Server B, 
+	and Server C. These 3 back-end servers are put in place to be the ones doing the actual
+	computations that the client needs done. The AWS server in this case, acts as a distributor
+	that takes data from client, divides the data, sends to back-end servers for computation, 
+	then receives results back to then feed back to the client. By having this system of
+	offloading the data to 3 back-end servers; data processing can be done in parallel, which
+	will make things much faster. 
+	The computation that can be done is fairly limited in the current state of my program. What
+	can be done are 4 different functions, adding, sum of squares, min, and max applied to a 
+	given set of integers.
+	
+Files:
+	1. client.cpp
+		-> the client process that is run with 1 of 4 function commands: sum, sos, min, max
+	2. aws.cpp
+		-> server that communicates with client over TCP connection and distributes data
+		to back-end servers over UDP connection.
+	3. serverA.cpp
+		-> back-end server
+	4. serverB.cpp
+		-> back-end server
+	5. serverC.cpp
+		-> back-end server
+
+How to run program:
+	1. open 5 terminals and run command "make all", this will compile all needed files
+	2. In the following order, run each command in separate terminal:
+		-> ./serverC
+		-> ./serverB
+		-> ./serverA
+		-> ./aws
+		-> ./client <function name>
+	3. All servers will remain running after client executes. To run once more, just run 
+	client again with chosen function name. 
+	
+Example output (./client sum):
+
+-- client -- 
+	The client is up and running.
+	The client has sent the reduction type sum to AWS.
+	The client has sent 300 numbers to AWS.
+	The client has received reduction sum: 163262
+	
+-- aws -- 
+	The AWS is up and running.
+	The AWS has received 300 numbers from the client using TCP over port 25955. 
+	The AWS sent 100 numbers to Backend-Server A
+	The AWS sent 100 numbers to Backend-Server B
+	The AWS sent 100 numbers to Backend-Server C
+	The AWS received reduction result of sum from Backend-Server A using UDP over port 24955 and it is 58962
+	The AWS received reduction result of sum from Backend-Server B using UDP over port 24955 and it is 50553
+	The AWS received reduction result of sum from Backend-Server C using UDP over port 24955 and it is 53747
+	The AWS has successfully finished the reduction sum: 163262
+	The AWS has successfully finished sending the reduction value to client.
+
+-- server A -- 
+	The Server A is up and running using UDP on port 21955.
+	The Server A has received 100 numbers
+	The Server A has successfully finished the reduction sum: 50553
+	The Server A has successfully finished sending the reduction value to AWS server. 
+
+-- server B -- 
+	The Server B is up and running using UDP on port 22955.
+	The Server B has received 100 numbers
+	The Server B has successfully finished the reduction sum: 58962
+	The Server B has successfully finished sending the reduction value to AWS server. 
+	
+-- server C -- 
+	The Server C is up and running using UDP on port 23955.
+	The Server C has received 100 numbers
+	The Server C has successfully finished the reduction sum: 53747
+	The Server C has successfully finished sending the reduction value to AWS server. 
+
+

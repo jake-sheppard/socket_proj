@@ -112,7 +112,7 @@ int main(int argc, char *argv[]){
  			exit(1);
  		}
  		printf("The Server B has successfully finished sending the reduction value to AWS server. \n");
-
+ 		printf("\n");
 
 	}
 }

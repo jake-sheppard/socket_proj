@@ -110,7 +110,8 @@ int main(int argc, char *argv[]){
  			perror("sendto");
  			exit(1);
  		}
- 		printf("The Server C has successfully finished sending the reduction value to AWS server. \n");
+ 		printf("The Server C has successfully finished sending the reduction value to AWS server. \n ");
+ 		printf("\n");
 
 
 	}
